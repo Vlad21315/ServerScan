@@ -136,7 +136,7 @@ app.post('/error', (req, res) => {
   if (!userId) return res.status(400).json({ error: 'No userId' });
 
   const ip = formatIP(req.ip);
-  const msg = `⚠️ Ошибка на index.html\n👤 Пользователь #${userId}\n🌐 IP: ${ip}\n❌ Ошибка: ${error}\n⏰ Время: ${getMoscowTime()}`;
+  const msg = `⚠️ Ошибка на сайте\n👤 Пользователь #${userId}\n🌐 IP: ${ip}\n❌ Ошибка: ${error}\n⏰ Время: ${getMoscowTime()}`;
   sendToTelegram(msg);
   res.json({ ok: true });
 });
