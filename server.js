@@ -10,14 +10,14 @@ const PORT = 3002; // Фиксированный порт
 
 // === КОНФИГУРАЦИЯ ===
 // Значения для Telegram бота мониторинга
-const TELEGRAM_TOKEN = '6887684565:AAHhXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx'; // Токен бота мониторинга
-const TELEGRAM_CHAT_ID = '-1001234567890'; // ID чата мониторинга
+const TELEGRAM_TOKEN = '7064290258:AAE0isSFrNtVvVT39hrTjnUwfMNRko6idqM'; // Токен бота мониторинга
+const TELEGRAM_CHAT_ID = '-1002583264850'; // ID чата мониторинга
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
-// Простой кэш для хранения последних IP-адресов
+// Простой кэш для хранения последних IP-адресов и их первого посещения
 const ipCache = new Map();
 const CACHE_TIMEOUT = 24 * 60 * 60 * 1000; // 24 часа
 
@@ -35,12 +35,23 @@ function getUserId(ip) {
   const cached = ipCache.get(ip);
   if (cached) {
     cached.timestamp = Date.now();
-    return cached.userId;
+    return {
+      userId: cached.userId,
+      isFirstVisit: false
+    };
   }
   
   const userId = (ipCache.size + 1).toString();
-  ipCache.set(ip, { userId, timestamp: Date.now() });
-  return userId;
+  ipCache.set(ip, { 
+    userId, 
+    timestamp: Date.now(),
+    firstVisitTime: Date.now()
+  });
+  
+  return {
+    userId,
+    isFirstVisit: true
+  };
 }
 
 async function sendToTelegram(message) {
@@ -92,39 +103,29 @@ function getMoscowTime() {
 // Обработчик посещения страницы
 app.post('/visit', (req, res) => {
   const ip = formatIP(req.ip);
-  const userId = getUserId(ip);
-  const msg = `🆕 Посещение index.html\n👤 Пользователь #${userId}\n🌐 IP: ${ip}\n⏰ Время: ${getMoscowTime()}`;
-  sendToTelegram(msg);
-  res.json({ userId });
+  const { userId, isFirstVisit } = getUserId(ip);
+  
+  // Отправляем сообщение только при первом посещении
+  if (isFirstVisit) {
+    const msg = `🆕 Первый заход на сайт\n👤 Пользователь #${userId}\n🌐 IP: ${ip}\n⏰ Время: ${getMoscowTime()}`;
+    sendToTelegram(msg);
+  }
+  
+  res.json({ userId, isFirstVisit });
 });
 
-// Обработчик активности на странице
+// Обработчик активности на странице (только клики)
 app.post('/activity', (req, res) => {
   const { type, details, userId } = req.body;
   if (!userId) return res.status(400).json({ error: 'No userId' });
-
-  const ip = formatIP(req.ip);
-  let msg = `📝 Активность на index.html\n👤 Пользователь #${userId}\n🌐 IP: ${ip}\n`;
-
-  // Добавляем информацию о типе активности
-  switch(type) {
-    case 'click':
-      msg += `🖱️ Клик: ${details}`;
-      break;
-    case 'input':
-      msg += `⌨️ Ввод: ${details}`;
-      break;
-    case 'scroll':
-      msg += `📜 Прокрутка: ${details}`;
-      break;
-    case 'hover':
-      msg += `👆 Наведение: ${details}`;
-      break;
-    default:
-      msg += `📌 Активность: ${type} - ${details}`;
+  
+  // Обрабатываем только клики
+  if (type !== 'click') {
+    return res.json({ ok: true });
   }
 
-  msg += `\n⏰ Время: ${getMoscowTime()}`;
+  const ip = formatIP(req.ip);
+  const msg = `🖱️ Нажатие на кнопку\n👤 Пользователь #${userId}\n🌐 IP: ${ip}\n📌 Кнопка: ${details}\n⏰ Время: ${getMoscowTime()}`;
   sendToTelegram(msg);
   res.json({ ok: true });
 });
