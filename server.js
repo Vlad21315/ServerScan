@@ -10,8 +10,8 @@ const PORT = 3002; // Фиксированный порт
 
 // === КОНФИГУРАЦИЯ ===
 // Значения для Telegram бота мониторинга
-const TELEGRAM_TOKEN = '6887684565:AAHhXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx'; // Токен бота мониторинга
-const TELEGRAM_CHAT_ID = '-1001234567890'; // ID чата мониторинга
+const TELEGRAM_TOKEN = '7064290258:AAE0isSFrNtVvVT39hrTjnUwfMNRko6idqM'; // Токен бота мониторинга
+const TELEGRAM_CHAT_ID = '-1002583264850'; // ID чата мониторинга
 
 app.use(cors());
 app.use(bodyParser.json());
