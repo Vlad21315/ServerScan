@@ -9,15 +9,9 @@ const app = express();
 const PORT = 3002; // Фиксированный порт
 
 // === КОНФИГУРАЦИЯ ===
-// Замените эти значения на ваши при установке на сервер
-const TELEGRAM_TOKEN = 'YOUR_BOT_TOKEN_HERE'; // Замените на токен вашего бота
-const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID_HERE'; // Замените на ID вашего чата
-
-// Проверка конфигурации
-if (TELEGRAM_TOKEN === 'YOUR_BOT_TOKEN_HERE' || TELEGRAM_CHAT_ID === 'YOUR_CHAT_ID_HERE') {
-  console.error('Ошибка: Необходимо указать TELEGRAM_TOKEN и TELEGRAM_CHAT_ID в server.js');
-  process.exit(1);
-}
+// Значения для Telegram бота мониторинга
+const TELEGRAM_TOKEN = '6887684565:AAHhXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx'; // Токен бота мониторинга
+const TELEGRAM_CHAT_ID = '-1001234567890'; // ID чата мониторинга
 
 app.use(cors());
 app.use(bodyParser.json());
